@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>옵션 종료일 연동 기획</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', Arial, sans-serif;
+    background: #f5f6f8;
+    color: #222;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .doc { max-width: 1020px; margin: 0 auto; padding: 36px 24px 80px; }
+  .doc-title { font-size: 19px; font-weight: 700; color: #111; margin-bottom: 6px; }
+  .doc-meta { font-size: 12px; color: #aaa; margin-bottom: 36px; }
+
+  .section { margin-bottom: 44px; }
+  .sec-label { font-size: 11px; font-weight: 700; color: #1a56db; letter-spacing: 0.7px; text-transform: uppercase; margin-bottom: 5px; }
+  .sec-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 3px; }
+  .sec-desc { font-size: 12px; color: #777; margin-bottom: 18px; }
+
+  .note-box {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 4px 4px 0;
+    padding: 9px 14px;
+    font-size: 12px;
+    color: #555;
+    margin-top: 14px;
+    line-height: 1.8;
+  }
+
+  .spec-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .spec-table th { background: #f9fafb; font-weight: 600; color: #555; padding: 9px 14px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+  .spec-table td { padding: 9px 14px; border-bottom: 1px solid #f3f4f6; color: #444; vertical-align: top; }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table td:first-child { font-weight: 600; color: #333; white-space: nowrap; }
+  .spec-table td.center { text-align: center; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-on { background: #dce8ff; color: #1a56db; }
+  .badge-off { background: #ececec; color: #666; }
+  .ok { color: #059669; font-weight: 700; }
+  .warn { color: #d97706; font-weight: 700; }
+
+  .footnote { font-size: 11px; color: #888; margin-top: 8px; }
+
+  /* ══════════ 실제 모달 재현 ══════════ */
+  .modal-shell {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 32px 36px 28px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+    border: 1px solid #eee;
+  }
+  .modal-shell-outer { background: #eef0f3; border-radius: 12px; padding: 24px; }
+  .m-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .m-title { font-size: 23px; font-weight: 700; color: #1a1a1a; }
+  .m-close { font-size: 18px; color: #999; cursor: default; }
+  .m-desc { font-size: 13px; color: #8a8f98; margin-top: 6px; margin-bottom: 22px; }
+
+  /* 피그마 스타일 변경사항 주석 핀 */
+  .anno-host { position: relative; }
+  .anno-pin {
+    position: absolute;
+    width: 18px; height: 18px;
+    border-radius: 50% 50% 50% 3px;
+    background: #7c3aed;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(124,97,237,0.45);
+    z-index: 30;
+  }
+  .anno-legend { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 10px; font-size: 11px; color: #666; }
+  .anno-pin-inline {
+    width: 16px; height: 16px;
+    border-radius: 50% 50% 50% 3px;
+    background: #7c3aed;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+  .anno-legend-item { display: inline-flex; align-items: center; }
+
+  .m-field-label { font-size: 13px; color: #444; margin-bottom: 7px; font-weight: 500; }
+  .m-field-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .m-input-lg {
+    flex: 1;
+    height: 44px;
+    border: 1px solid #dcdfe4;
+    border-radius: 8px;
+    padding: 0 14px;
+    font-size: 14px;
+    color: #333;
+  }
+  .m-btn-dark {
+    height: 44px;
+    padding: 0 18px;
+    background: #23283a;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .m-table-wrap { border: 1px solid #eceef2; border-radius: 10px; overflow: hidden; }
+  .m-table { width: 100%; border-collapse: collapse; }
+  .m-table thead th {
+    background: #eef0f6;
+    color: #565b6e;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 12px 10px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .m-table thead th.col-name { text-align: left; padding-left: 16px; }
+  .m-table thead th.new-col { background: #e2ebff; }
+  .m-table tbody td {
+    padding: 9px 10px;
+    border-top: 1px solid #f1f2f5;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .m-table tbody td.col-name { text-align: left; padding-left: 16px; font-size: 13.5px; color: #222; }
+  .m-table tbody td.new-col { background: #f5f8ff; }
+  .m-table tbody tr:first-child td { border-top: none; }
+
+  .m-checkbox {
+    width: 17px; height: 17px;
+    border-radius: 4px;
+    background: #1a2b57;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .m-checkbox::after {
+    content: "";
+    width: 8px; height: 5px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(0,-1px);
+  }
+
+  .m-input-sm {
+    width: 100%;
+    max-width: 96px;
+    height: 38px;
+    border: 1px solid #dcdfe4;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 13.5px;
+    color: #333;
+  }
+  .m-input-sm.readonly {
+    background: #e9ebef;
+    border-color: #e9ebef;
+    color: #555;
+  }
+  .m-date-locked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    background: #e9ebef;
+    border: 1px solid #e9ebef;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #8a8f98;
+    max-width: 130px;
+    margin: 0 auto;
+    cursor: not-allowed;
+  }
+  .m-date-editable {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 38px;
+    border: 1px solid #dcdfe4;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #333;
+    max-width: 130px;
+    margin: 0 auto;
+    cursor: pointer;
+  }
+  .m-date-editable svg { flex-shrink: 0; margin-left: 6px; }
+
+  .m-footer { display: flex; gap: 12px; margin-top: 20px; }
+  .m-btn-outline {
+    flex: 1;
+    height: 50px;
+    border: 1px solid #dcdfe4;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a56db;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .m-btn-solid {
+    flex: 1;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background: #1a56ea;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* 연동 토글 */
+  .toggle { display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
+  .switch { position: relative; width: 30px; height: 16px; border-radius: 9px; background: #d5dae2; display: inline-block; flex-shrink: 0; }
+  .switch.on { background: #1a56db; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+  .switch.on::after { left: 16px; }
+  .toggle-label { font-size: 11px; font-weight: 600; }
+  .toggle-label.on { color: #1a56db; }
+  .toggle-label.off { color: #888; }
+
+  /* 정보 아이콘 + 툴팁 */
+  .th-with-info { display: inline-flex; align-items: center; gap: 4px; }
+  .info-tooltip { position: relative; display: inline-flex; }
+  .info-icon {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: #9aa7bc;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+  }
+  .info-tooltip .tooltip-box {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 140%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.55;
+    padding: 9px 11px;
+    border-radius: 6px;
+    width: 210px;
+    text-align: left;
+    white-space: normal;
+    transition: opacity .12s;
+    z-index: 20;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  }
+  .info-tooltip .tooltip-box::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -4px;
+    border-width: 4px;
+    border-style: solid;
+    border-color: transparent transparent #1f2937 transparent;
+  }
+  .info-tooltip:hover .tooltip-box { visibility: visible; opacity: 1; }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="doc-title">유지보수 효율성 증대를 위한 사용권 종료일 기준 옵션 종료일 연동 기획</div>
+  <div class="doc-meta">대상 화면: 거래관리 &gt; 거래 등록 &gt; 신규판매 / 추가판매 / 매출취소 &gt; 옵션 수정 모달 · 2026-07-14</div>
+
+  <!-- ══════════════ Background ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Background</div>
+    <div class="sec-title">옵션 종료일이 대여 개념으로만 사용되고 있는 문제</div>
+    <div class="sec-desc">사용권 종료일은 연장 시 자동 갱신되지만, 옵션 종료일은 한 번 값이 채워지면 이후 그대로 남는다</div>
+    <div class="note-box">
+      · 해외 사업에서는 옵션 제공을 MODS 여부로 결정하는 케이스가 대부분임<br>
+      · 옵션이 15~20개 이상인 사용권도 많아 매번 수동으로 맞추면 휴먼 에러 발생 가능성이 높음<br>
+      · 그렇다고 전체 옵션 종료일을 사용권 종료일에 자동 일괄 동기화할 수도 없음 — 일부 사업팀은 특정 옵션을 지정일 만료 형태로 운영<br>
+      · 옵션별로 "사용권 종료일과 함께 연장할지"를 명시적 상태로 관리 필요
+    </div>
+  </div>
+
+  <!-- ══════════════ Alternatives ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Alternatives</div>
+    <div class="sec-title">"종료일 일괄 적용 버튼" 방식은 검토 후 기각</div>
+    <div class="sec-desc">거래에서 클릭 한 번으로 전체 옵션 종료일을 사용권 종료일로 덮어쓰는 방식도 검토했으나 아래 이유로 채택하지 않음</div>
+    <div class="note-box">
+      · 특정 종료일에 종료시키려고 한 대여형 옵션도 의도치 않게 사용권 종료일로 덮어써질 위험이 있음<br>
+      · 값을 즉시 덮어쓰는 1회성 동작이라 실수로 적용하면 원래 지정했던 특정 종료일 값이 복구되지 않음<br>
+      · 상태 자체가 저장되지 않으므로 다음 연장 때도 동일한 실수가 반복될 수 있어 근본적 해결이 아님
+    </div>
+  </div>
+
+  <!-- ══════════════ Modal (실화면 재현) ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Modal</div>
+    <div class="sec-title">옵션 수정 모달 — "사용권종료일 연동" 컬럼 추가</div>
+    <div class="sec-desc">최종 수량과 종료일 사이에 컬럼 추가</div>
+    <div class="note-box">
+      · 신규판매 / 추가판매 / 매출취소 등 옵션 수정 모달이 노출되는 모든 거래 등록 화면에 동일하게 컬럼 추가<br>
+      · 거래 타입이 <b>연장</b>인 경우, 사용권 종료일이 기본값(예: 1년 후)으로 자동 설정되는 것과 동일하게 연동 On인 옵션의 종료일도 사용권 종료일 값을 기본으로 함께 제공<br>
+      · 사용권 리스트 등 보유 옵션을 조회만 하는 화면(옵션명 / 수량 / 종료일 등)은 연동 여부를 추가로 표시하지 않고 기존 형태 그대로 유지
+    </div>
+
+    <div class="modal-shell-outer">
+      <div class="modal-shell">
+        <div class="m-head">
+          <div class="m-title">옵션 수정</div>
+          <div class="m-close">✕</div>
+        </div>
+        <div class="m-desc">
+          연동 옵션의 종료일은 사용권 종료일을 따르며, 유지보수를 하지 않으면 더이상 사용할 수 없습니다.<span class="anno-pin-inline" style="margin-left:4px;">3</span><br>미연동 옵션은 종료일 미입력 시 제품 사용 가능 여부와 동일하게 처리됩니다.
+        </div>
+
+        <div class="m-field-label">제품명</div>
+        <div class="m-field-row">
+          <input class="m-input-lg" value="Gen" readonly>
+          <button class="m-btn-dark">제품 변경 수량 적용</button>
+        </div>
+
+        <div class="anno-host" style="position:relative;">
+          <span class="anno-pin" style="top:-8px; right:130px;">1</span>
+          <div class="m-table-wrap">
+          <table class="m-table">
+            <thead>
+              <tr>
+                <th style="width:36px;"><span class="m-checkbox"></span></th>
+                <th class="col-name" style="width:200px;">옵션명</th>
+                <th style="width:110px;">변경 수량</th>
+                <th style="width:110px;">최종 수량</th>
+                <th class="new-col" style="width:150px;">
+                  <span class="th-with-info">
+                    사용권종료일 연동
+                    <span class="info-tooltip">
+                      <span class="anno-pin" style="top:0px; right:-20px;">2</span>
+                      <span class="info-icon">i</span>
+                      <span class="tooltip-box">
+                        <b>연동</b>: 사용권이 연장되면 옵션 종료일도 함께 연장<br>
+                        <b>미연동</b>: 지정된 종료일에 만료<br>
+                        <b>종료일 미입력</b>: 제품 사용 가능 여부와 동일하게 처리
+                      </span>
+                    </span>
+                  </span>
+                </th>
+                <th style="width:130px;">종료일</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">1 Construction Stage</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch on"></span>
+                  </div>
+                </td>
+                <td><div class="m-date-locked">2032.03.31</div></td>
+              </tr>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">2 Tendon</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch on"></span>
+                  </div>
+                </td>
+                <td><div class="m-date-locked">2032.03.31</div></td>
+              </tr>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">3 Large Displacement</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch"></span>
+                  </div>
+                </td>
+                <td>
+                  <div class="m-date-editable">
+                    2026.07.01
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="#8a8f98" stroke-width="1.3"/><path d="M2 6.5h12" stroke="#8a8f98" stroke-width="1.3"/><path d="M5 1.5v3M11 1.5v3" stroke="#8a8f98" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">4 Boundary Nonlinear Dynamic</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch on"></span>
+                  </div>
+                </td>
+                <td><div class="m-date-locked">2032.03.31</div></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <div class="m-footer">
+          <button class="m-btn-outline">취소</button>
+          <button class="m-btn-solid">저장</button>
+        </div>
+      </div>
+    </div>
+    <div class="anno-legend">
+    <span class="anno-legend-item"><span class="anno-pin-inline">1</span>컬럼 추가</span>
+    <span class="anno-legend-item"><span class="anno-pin-inline">2</span>툴팁 추가</span>
+    <span class="anno-legend-item"><span class="anno-pin-inline">3</span>모달 상단 안내문구 변경</span>
+    </div>
+    <div class="footnote">※ 새 컬럼은 최종 수량과 종료일 사이에 삽입 · 연동 옵션인 경우 종료일 필드 비활성 처리로 수정 불가 · 미연동 상태만 데이트피커 노출 · 나머지 레이아웃/컴포넌트는 기존과 동일</div>
+  </div>
+
+  <!-- ══════════════ English ══════════════ -->
+  <div class="section">
+    <div class="sec-label">English</div>
+    <div class="sec-title">영문 버전</div>
+
+    <div class="spec-wrap">
+      <table class="spec-table" style="table-layout:fixed;">
+        <thead>
+          <tr><th style="width:110px;">영역</th><th style="width:360px;">한글 원문</th><th style="width:360px;">영문 번역</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>컬럼명</td>
+            <td>사용권종료일 연동</td>
+            <td>License End Date Sync</td>
+          </tr>
+          <tr>
+            <td>토글 상태</td>
+            <td>연동 / 미연동</td>
+            <td>Synced / Not Synced</td>
+          </tr>
+          <tr>
+            <td>툴팁 1</td>
+            <td>연동: 사용권 연장 시 옵션 종료일도 함께 연장</td>
+            <td>Synced: When the license is renewed, the option end date is extended together.</td>
+          </tr>
+          <tr>
+            <td>툴팁 2</td>
+            <td>미연동: 지정된 종료일에 만료</td>
+            <td>Not Synced: Expires on the specified end date.</td>
+          </tr>
+          <tr>
+            <td>툴팁 3</td>
+            <td>종료일 미입력: 제품 사용 가능 여부와 동일하게 처리</td>
+            <td>If End Date is not set, it follows the same availability as the product's usage permission.</td>
+          </tr>
+          <tr>
+            <td>모달 상단 안내문구</td>
+            <td>연동 옵션의 종료일은 사용권 종료일을 따르며, 유지보수를 하지 않으면 더이상 사용할 수 없습니다.<br>미연동 옵션은 종료일 미입력 시 제품 사용 가능 여부와 동일하게 처리됩니다.</td>
+            <td>Synced options automatically follow the license end date.<br>Not-synced options keep their own end date — if blank, it follows the product's usage availability.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-shell-outer" style="margin-top:16px;">
+      <div class="modal-shell">
+        <div class="m-head">
+          <div class="m-title">Modify options</div>
+          <div class="m-close">✕</div>
+        </div>
+        <div class="m-desc">
+          Synced options automatically follow the license end date.<span class="anno-pin-inline" style="margin-left:4px;">3</span><br>Not-synced options keep their own end date — if blank, it follows the product's usage availability.
+        </div>
+
+        <div class="m-field-label">Product Name</div>
+        <div class="m-field-row">
+          <input class="m-input-lg" value="Gen" readonly>
+          <button class="m-btn-dark">Apply product quantity changes</button>
+        </div>
+
+        <div class="anno-host" style="position:relative;">
+          <span class="anno-pin" style="top:-8px; right:130px;">1</span>
+          <div class="m-table-wrap">
+          <table class="m-table">
+            <thead>
+              <tr>
+                <th style="width:36px;"><span class="m-checkbox"></span></th>
+                <th class="col-name" style="width:200px;">Option Name</th>
+                <th style="width:110px;">Change quantity</th>
+                <th style="width:110px;">Final quantity</th>
+                <th class="new-col" style="width:150px;">
+                  <span class="th-with-info">
+                    License End Date Sync
+                    <span class="info-tooltip">
+                      <span class="anno-pin" style="top:0px; right:-20px;">2</span>
+                      <span class="info-icon">i</span>
+                      <span class="tooltip-box">
+                        <b>Synced</b>: When the license is renewed, the option end date is extended together.<br>
+                        <b>Not Synced</b>: Expires on the specified end date.<br>
+                        <b>End Date not set</b>: follows the same availability as the product's usage permission.
+                      </span>
+                    </span>
+                  </span>
+                </th>
+                <th style="width:130px;">End Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">1 Construction Stage</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch on"></span>
+                  </div>
+                </td>
+                <td><div class="m-date-locked">2032.03.31</div></td>
+              </tr>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">2 Tendon</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch on"></span>
+                  </div>
+                </td>
+                <td><div class="m-date-locked">2032.03.31</div></td>
+              </tr>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">3 Large Displacement</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch"></span>
+                  </div>
+                </td>
+                <td>
+                  <div class="m-date-editable">
+                    2026.07.01
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="#8a8f98" stroke-width="1.3"/><path d="M2 6.5h12" stroke="#8a8f98" stroke-width="1.3"/><path d="M5 1.5v3M11 1.5v3" stroke="#8a8f98" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="m-checkbox"></span></td>
+                <td class="col-name">4 Boundary Nonlinear Dynamic</td>
+                <td><input class="m-input-sm" value="0"></td>
+                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td class="new-col">
+                  <div class="toggle">
+                    <span class="switch on"></span>
+                  </div>
+                </td>
+                <td><div class="m-date-locked">2032.03.31</div></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <div class="m-footer">
+          <button class="m-btn-outline">Cancel</button>
+          <button class="m-btn-solid">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="anno-legend">
+      <span class="anno-legend-item"><span class="anno-pin-inline">1</span>New column</span>
+      <span class="anno-legend-item"><span class="anno-pin-inline">2</span>New tooltip</span>
+      <span class="anno-legend-item"><span class="anno-pin-inline">3</span>Modal top guide text changed</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ Spec ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Spec</div>
+    <div class="sec-title">연동 상태별 동작</div>
+    <div class="sec-desc">토글 값에 따라 종료일 필드 및 연장 시 동작이 분기</div>
+
+    <div class="spec-wrap">
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:180px;">항목</th>
+            <th>연동</th>
+            <th>미연동</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>종료일 필드</td>
+            <td>비활성 · 수정 불가 · 사용권 종료일 값 표시</td>
+            <td>클릭 시 데이트피커 노출 · 직접 입력 가능</td>
+          </tr>
+          <tr>
+            <td>사용권 연장 시</td>
+            <td>옵션 종료일도 사용권 종료일과 동일하게 자동 반영</td>
+            <td>지정된 날짜 그대로 유지</td>
+          </tr>
+          <tr>
+            <td>신규판매 시</td>
+            <td colspan="2">기본값은 미연동으로 제공</td>
+          </tr>
+          <tr>
+            <td>추가판매 연장 시</td>
+            <td colspan="2">사용권 종료일이 기본값(1년 후 등)으로 자동 설정되는 것과 동일하게, 연동 옵션의 종료일도 이번 연장의 사용권 종료일 값을 기본으로 자동 채워져 표시됨</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════ Migration ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Migration</div>
+    <div class="sec-title">기존 데이터 초기값 처리</div>
+    <div class="sec-desc">종료일 값만으로는 연동 의도를 정확히 추정할 수 없어, 기존 옵션은 값과 무관하게 전량 미연동으로 초기화<br>영구/유상대여/무상대여 모두 아래 동일 규칙으로 연동 상태를 초기화한다</div>
+    <div class="spec-wrap">
+      <table class="spec-table">
+        <thead>
+          <tr><th style="width:260px;">기존 옵션 종료일</th><th>연동 상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>기존 값 유지</td><td><span class="badge badge-off">미연동</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box">
+      값이 비어 있거나 사용권 종료일과 같다고 해서 "연동 의도였다"고 단정할 수 없음 <br>→ 기존 데이터는 모두 미연동으로 마이그레이션하고, 사용권과 함께 연장돼야 하는 옵션은 사업팀이 개별적으로 연동으로 전환
+    </div>
+  </div>
+
+  <!-- ══════════════ Case Review ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Review</div>
+    <div class="sec-title">케이스 검토</div>
+    <div class="sec-desc">5개 시나리오 기준으로 현재 기획의 커버리지를 점검</div>
+
+    <div class="spec-wrap">
+      <table class="spec-table" style="table-layout:fixed;">
+        <thead>
+          <tr>
+            <th style="width:100px;">사용권타입</th>
+            <th style="width:180px;">옵션 사용 조건</th>
+            <th style="width:240px;">옵션 사용 조건 설명</th>
+            <th style="width:140px;">연동 상태</th>
+            <th style="width:260px;">종료일 값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>영구</td>
+            <td>영구</td>
+            <td>유지보수 안 해도 옵션 사용 가능</td>
+            <td><span class="badge badge-off">미연동</span></td>
+            <td>미설정</td>
+          </tr>
+          <tr>
+            <td>영구</td>
+            <td>조건부 대여</td>
+            <td>유지보수를 해야 옵션 사용 가능</td>
+            <td><span class="badge badge-on">연동</span></td>
+            <td>사용권 종료일과 동일하게 자동 연동</td>
+          </tr>
+          <tr>
+            <td>영구</td>
+            <td>대여</td>
+            <td>유지보수 여부 무관, 특정 날짜에 옵션 종료</td>
+            <td><span class="badge badge-off">미연동</span></td>
+            <td>지정값</td>
+          </tr>
+          <tr>
+            <td>대여</td>
+            <td>대여</td>
+            <td>사용권 종료일까지 옵션 사용 가능</td>
+            <td><span class="badge badge-on">연동</span> 또는<br><span class="badge badge-off">미연동</span></td>
+            <td>사용권 종료일과 동일하게 자동 연동<br>또는 미설정</td>
+          </tr>
+          <tr>
+            <td>대여</td>
+            <td>대여</td>
+            <td>특정 날짜에 옵션 먼저 종료</td>
+            <td><span class="badge badge-off">미연동</span></td>
+            <td>지정값</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════ Edge Cases ══════════════ -->
+  <div class="section">
+    <div class="sec-label">Edge Cases</div>
+    <div class="sec-title">처리 기준</div>
+
+    <div class="spec-wrap">
+      <table class="spec-table">
+        <thead>
+          <tr><th style="width:240px;">케이스</th><th>처리</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>연동 옵션의 종료일 갱신 시점</td>
+            <td>사용권 종료일 실시간 참조</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body></html>
