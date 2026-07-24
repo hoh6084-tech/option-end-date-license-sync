@@ -447,47 +447,7 @@
     <div class="sec-label">English</div>
     <div class="sec-title">영문 버전</div>
 
-    <div class="spec-wrap">
-      <table class="spec-table" style="table-layout:fixed;">
-        <thead>
-          <tr><th style="width:110px;">영역</th><th style="width:360px;">한글 원문</th><th style="width:360px;">영문 번역</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>컬럼명</td>
-            <td>사용권종료일 연동</td>
-            <td>License End Date Sync</td>
-          </tr>
-          <tr>
-            <td>토글 상태</td>
-            <td>연동 / 미연동</td>
-            <td>Synced / Not Synced</td>
-          </tr>
-          <tr>
-            <td>툴팁 1</td>
-            <td>연동: 사용권 연장 시 옵션 종료일도 함께 연장</td>
-            <td>Synced: When the license is renewed, the option end date is extended together.</td>
-          </tr>
-          <tr>
-            <td>툴팁 2</td>
-            <td>미연동: 지정된 종료일에 만료</td>
-            <td>Not Synced: Expires on the specified end date.</td>
-          </tr>
-          <tr>
-            <td>툴팁 3</td>
-            <td>종료일 미입력: 제품 사용 가능 여부와 동일하게 처리</td>
-            <td>If End Date is not set, it follows the same availability as the product's usage permission.</td>
-          </tr>
-          <tr>
-            <td>모달 상단 안내문구</td>
-            <td>연동 옵션의 종료일은 사용권 종료일을 따르며, 유지보수를 하지 않으면 더이상 사용할 수 없습니다.<br>미연동 옵션은 종료일 미입력 시 제품 사용 가능 여부와 동일하게 처리됩니다.</td>
-            <td>Synced options automatically follow the license end date.<br>Not-synced options keep their own end date — if blank, it follows the product's usage availability.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="modal-shell-outer" style="margin-top:16px;">
+    <div class="modal-shell-outer">
       <div class="modal-shell">
         <div class="m-head">
           <div class="m-title">Modify options</div>
@@ -499,7 +459,7 @@
 
         <div class="m-field-label">Product Name</div>
         <div class="m-field-row">
-          <input class="m-input-lg" value="Gen" readonly>
+          <div class="m-input-lg" style="display:flex; align-items:center;">Gen</div>
           <button class="m-btn-dark">Apply product quantity changes</button>
         </div>
 
@@ -534,8 +494,8 @@
               <tr>
                 <td><span class="m-checkbox"></span></td>
                 <td class="col-name">1 Construction Stage</td>
-                <td><input class="m-input-sm" value="0"></td>
-                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td><div class="m-input-sm" style="display:flex; align-items:center;">0</div></td>
+                <td><div class="m-input-sm readonly" style="display:flex; align-items:center;">2</div></td>
                 <td class="new-col">
                   <div class="toggle">
                     <span class="switch on"></span>
@@ -546,8 +506,8 @@
               <tr>
                 <td><span class="m-checkbox"></span></td>
                 <td class="col-name">2 Tendon</td>
-                <td><input class="m-input-sm" value="0"></td>
-                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td><div class="m-input-sm" style="display:flex; align-items:center;">0</div></td>
+                <td><div class="m-input-sm readonly" style="display:flex; align-items:center;">2</div></td>
                 <td class="new-col">
                   <div class="toggle">
                     <span class="switch on"></span>
@@ -558,8 +518,8 @@
               <tr>
                 <td><span class="m-checkbox"></span></td>
                 <td class="col-name">3 Large Displacement</td>
-                <td><input class="m-input-sm" value="0"></td>
-                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td><div class="m-input-sm" style="display:flex; align-items:center;">0</div></td>
+                <td><div class="m-input-sm readonly" style="display:flex; align-items:center;">2</div></td>
                 <td class="new-col">
                   <div class="toggle">
                     <span class="switch"></span>
@@ -575,8 +535,8 @@
               <tr>
                 <td><span class="m-checkbox"></span></td>
                 <td class="col-name">4 Boundary Nonlinear Dynamic</td>
-                <td><input class="m-input-sm" value="0"></td>
-                <td><input class="m-input-sm readonly" value="2" readonly></td>
+                <td><div class="m-input-sm" style="display:flex; align-items:center;">0</div></td>
+                <td><div class="m-input-sm readonly" style="display:flex; align-items:center;">2</div></td>
                 <td class="new-col">
                   <div class="toggle">
                     <span class="switch on"></span>
